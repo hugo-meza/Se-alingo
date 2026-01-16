@@ -1,0 +1,68 @@
+body {
+  /*display: grid;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;*/
+  background-color: transparent;
+}
+
+.memory-game {
+  display: grid;
+  grid-template-columns: repeat(2, 50%);
+  gap: 15px;
+  justify-items: center;
+  text-align: center;
+}
+.card {
+  width: 100px;
+  height: 100px;
+  transition: transform 0.5s;
+  background-color: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ccc;
+}
+
+#id-gif {
+  background-color: #000000; /* Color de fondo inicial */
+  transition: background-color 0.5s; /* Añadida transición para cambiar el color de fondo */
+  transition: transform 0.5s;
+}
+.card.flip {
+  transform: rotateY(180deg);
+  background-color: aquamarine;
+  color: black;
+}
+
+.card .card-content {
+  transform: rotateY(180deg); /* Aplica una rotación inversa al contenido */
+  user-select: none;
+}
+
+#id-gif {
+  width: 145px;
+  height: 145px;
+  overflow: hidden;
+  border-radius: 7%;
+}
+
+#id-op {
+  width: 145px; /* Ajusta el ancho según tus necesidades */
+  height: 145px; /* El alto se ajustará proporcionalmente al ancho */
+  border-radius: 7%;
+}
+.card.gif.flip img {
+  display: block;
+}
+
+.card.gif img {
+  display: none;
+}
+img.card-content {
+  height: 100%;
+}
+
