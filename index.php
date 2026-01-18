@@ -280,8 +280,7 @@
 										</div>
 									</div>
 									<ul class="actions">
-										<li><input type="submit" value="Send Message" class="primary" /></li>
-										<li><input type="reset" value="Reset" /></li>
+										<li><input type="submit" value="Enviar" class="primary" /></li>
 										<li></li>
 									</ul>
 									

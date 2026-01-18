@@ -1,0 +1,141 @@
+{
+  "total_files": 204,
+  "text_files": 98,
+  "unused_count": 108,
+  "groups": {
+    "<noext>": [
+      ".gitattributes"
+    ],
+    ".php": [
+      "guardarNuevaContra.php",
+      "landing.php"
+    ],
+    ".txt": [
+      "LICENSE.txt"
+    ],
+    ".md": [
+      "README.md"
+    ],
+    ".js": [
+      "assets/demo/datatables-demo.js",
+      "assets/js/InicioSesion/script-desc.js"
+    ],
+    ".svg": [
+      "assets/img/error-404-monochrome.svg"
+    ],
+    ".scss": [
+      "assets/sass/main.scss",
+      "assets/sass/noscript.scss",
+      "assets/sass/base/_page.scss",
+      "assets/sass/base/_reset.scss",
+      "assets/sass/base/_typography.scss",
+      "assets/sass/components/_actions.scss",
+      "assets/sass/components/_box.scss",
+      "assets/sass/components/_button.scss",
+      "assets/sass/components/_form.scss",
+      "assets/sass/components/_icon.scss",
+      "assets/sass/components/_icons.scss",
+      "assets/sass/components/_image.scss",
+      "assets/sass/components/_list.scss",
+      "assets/sass/components/_table.scss",
+      "assets/sass/layout/_bg.scss",
+      "assets/sass/layout/_footer.scss",
+      "assets/sass/layout/_header.scss",
+      "assets/sass/layout/_main.scss",
+      "assets/sass/layout/_wrapper.scss",
+      "assets/sass/libs/_breakpoints.scss",
+      "assets/sass/libs/_functions.scss",
+      "assets/sass/libs/_mixins.scss",
+      "assets/sass/libs/_vars.scss",
+      "assets/sass/libs/_vendor.scss"
+    ],
+    ".png": [
+      "images/nino-sinFondo.png",
+      "images/jarron/jarron0.png",
+      "images/jarron/jarron1.png",
+      "images/jarron/jarron2.png",
+      "images/jarron/jarron3.png",
+      "images/jarron/jarron4.png",
+      "images/jarron/jarron5.png",
+      "images/jarron/luciernaga1.png",
+      "images/jarron/luciernaga2.png",
+      "images/jarron/luciernaga3.png",
+      "images/jarron/luciernaga4.png",
+      "images/jarron/luciernaga5.png",
+      "images/jarron/pts0.png",
+      "images/jarron/pts1.png",
+      "images/jarron/pts2.png",
+      "images/jarron/pts3.png",
+      "images/jarron/pts4.png",
+      "images/jarron/resultado0.png",
+      "images/jarron/resultado1.png",
+      "images/jarron/resultado2.png",
+      "images/jarron/resultado3.png",
+      "images/jarron/resultado4.png",
+      "images/jarron/resultado5.png",
+      "images/Perfil/sam-mau.png"
+    ],
+    ".jpg": [
+      "images/jarron/jaron4(no editado).jpg",
+      "images/jarron/jarron0(no editado).jpg",
+      "images/jarron/jarron1(no editado).jpg",
+      "images/jarron/jarron2(no editado).jpg",
+      "images/jarron/jarron3(no editado).jpg",
+      "images/jarron/jarron5(no editado).jpg"
+    ],
+    ".pdf": [
+      "Lecciones/Abecedario/ABECEDARIO.pdf",
+      "Lecciones/Colores/COLORES.pdf"
+    ],
+    ".mp4": [
+      "Lecciones/Abecedario/VIDEO_L1.mp4",
+      "Lecciones/Colores/VIDEO_L2.mp4"
+    ],
+    ".gif": [
+      "Lecciones/Abecedario/Gifs/A.gif",
+      "Lecciones/Abecedario/Gifs/B.gif",
+      "Lecciones/Abecedario/Gifs/C.gif",
+      "Lecciones/Abecedario/Gifs/D.gif",
+      "Lecciones/Abecedario/Gifs/E.gif",
+      "Lecciones/Abecedario/Gifs/F.gif",
+      "Lecciones/Abecedario/Gifs/G.gif",
+      "Lecciones/Abecedario/Gifs/H.gif",
+      "Lecciones/Abecedario/Gifs/I.gif",
+      "Lecciones/Abecedario/Gifs/J.gif",
+      "Lecciones/Abecedario/Gifs/K.gif",
+      "Lecciones/Abecedario/Gifs/L.gif",
+      "Lecciones/Abecedario/Gifs/LL.gif",
+      "Lecciones/Abecedario/Gifs/M.gif",
+      "Lecciones/Abecedario/Gifs/N.gif",
+      "Lecciones/Abecedario/Gifs/O.gif",
+      "Lecciones/Abecedario/Gifs/P.gif",
+      "Lecciones/Abecedario/Gifs/Q.gif",
+      "Lecciones/Abecedario/Gifs/R.gif",
+      "Lecciones/Abecedario/Gifs/RR.gif",
+      "Lecciones/Abecedario/Gifs/S.gif",
+      "Lecciones/Abecedario/Gifs/T.gif",
+      "Lecciones/Abecedario/Gifs/U.gif",
+      "Lecciones/Abecedario/Gifs/V.gif",
+      "Lecciones/Abecedario/Gifs/W.gif",
+      "Lecciones/Abecedario/Gifs/X.gif",
+      "Lecciones/Abecedario/Gifs/Y.gif",
+      "Lecciones/Abecedario/Gifs/Z.gif",
+      "Lecciones/Abecedario/Gifs/�.gif",
+      "Lecciones/Colores/Gifs/L2Amarillo.gif",
+      "Lecciones/Colores/Gifs/L2Azul.gif",
+      "Lecciones/Colores/Gifs/L2AzulCielo.gif",
+      "Lecciones/Colores/Gifs/L2AzulRey.gif",
+      "Lecciones/Colores/Gifs/L2Blanco.gif",
+      "Lecciones/Colores/Gifs/L2Gris.gif",
+      "Lecciones/Colores/Gifs/L2Morado.gif",
+      "Lecciones/Colores/Gifs/L2Naranja.gif",
+      "Lecciones/Colores/Gifs/L2Negro.gif",
+      "Lecciones/Colores/Gifs/L2Oro.gif",
+      "Lecciones/Colores/Gifs/L2VerdeLimon.gif",
+      "Lecciones/Colores/Gifs/L2Vino.gif"
+    ],
+    ".mp3": [
+      "sonidos/wrong-answer-129254.mp3"
+    ]
+  }
+}
