@@ -1,0 +1,6 @@
+{
+    "require": {
+        "phanda-framework/dotenv": "^0.1.2",
+        "vlucas/phpdotenv": "^2.6"
+    }
+}

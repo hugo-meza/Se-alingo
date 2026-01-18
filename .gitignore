@@ -1,0 +1,6 @@
+# Ignore environment files and common generated folders
+.env
+vendor/
+node_modules/
+.vscode/
+unused_report.json
