@@ -71,18 +71,31 @@
 					<div id="main">
 							<section id="two" class="spotlights">
 							<?php
-								session_name("USUARIO");
 								session_start();
+								
+								// Validate user is logged in
+								if (empty($_SESSION['correo'])) {
+									header("Location: index.php");
+									exit();
+								}
+								
 								$correo = $_SESSION['correo'];
 								include('db.php');
 
-								$consulta = "SELECT idNivel, promedioMin,numeroN FROM niveles";
-								$resultado = mysqli_query($conexion, $consulta);
+								// Use prepared statement
+								$stmt = $conexion->prepare("SELECT idNivel, promedioMin, numeroN FROM niveles");
+								if (!$stmt) {
+									error_log("Prepare failed: " . $conexion->error);
+									die('Error al cargar lecciones');
+								}
+								
+								$stmt->execute();
+								$resultado = $stmt->get_result();
 
 								if ($resultado) {
-									$filas = mysqli_num_rows($resultado);
+									$filas = $resultado->num_rows;
 									if ($filas > 0) {
-										while ($fila = mysqli_fetch_assoc($resultado)) {
+										while ($fila = $resultado->fetch_assoc()) {
 											$idNivel = $fila['idNivel'];
 											$numero = $fila['numeroN'];
 											echo "<section>
@@ -97,7 +110,7 @@
 										echo "No se encontraron niveles.";
 									}
 								} else {
-									echo "Error en la consulta: " . mysqli_error($conexion);
+									echo "Error en la consulta: " . $conexion->error;
 								}
 								?>
 

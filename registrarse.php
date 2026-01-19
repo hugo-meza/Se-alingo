@@ -1,90 +1,124 @@
 <?php
-    $correo = $_POST['email'];
-    $usuario = $_POST['usuario'];
-    $pass = $_POST['pass2'];
-    $genero = $_POST['genero'];
-    $fNac = $_POST['fNac'];
-    session_name("USUARIO");
-    session_start();
-    $_SESSION['correo'] = $correo;
-    $img = 'images/Perfil/sam.png';
-    include('db.php');
+include('db.php');
 
-    $consulta = "SELECT emailU FROM usuario WHERE emailU = '$correo'
-    UNION
-    SELECT emailA FROM administrador WHERE emailA = '$correo'
-    UNION
-    SELECT emailM FROM maestros WHERE emailM = '$correo'";
-    $resultado = mysqli_query($conexion,$consulta);
-    $filas = mysqli_num_rows($resultado);
+// Get and validate inputs
+$correo = isset($_POST['email']) ? trim($_POST['email']) : '';
+$usuario = isset($_POST['usuario']) ? trim($_POST['usuario']) : '';
+$pass = isset($_POST['pass2']) ? $_POST['pass2'] : '';
+$genero = isset($_POST['genero']) ? $_POST['genero'] : '';
+$fNac = isset($_POST['fNac']) ? $_POST['fNac'] : '';
 
-    if($filas > 0){
-        //mandar mensaje y de q ya existe una cuenta con tal correo
-        echo '<script language="javascript">window.location.href="index.php";alert("Ya existe una cuenta con tal correo");
-        </script>';
-    }else{
-        $consulta = "SELECT nUsuario FROM usuario WHERE nUsuario = '$usuario'";
-        $resultado = mysqli_query($conexion,$consulta);
-        $filas = mysqli_num_rows($resultado);
-        if($filas > 0){
-            echo '<script language="javascript">window.location.href="index.php";alert("Ya existe una cuenta con tal usuario");
-            </script>';
-        }else{
-            if (preg_match('/^(?=.*[A-Z])(?=.*\d).{8,}$/', $pass)) {
-                // Inicia la transacción
-                mysqli_begin_transaction($conexion);
-                try {
-                    // Primera operación: Inserción en la tabla 'usuario'
-                    $sql = "INSERT INTO usuario VALUES ('$correo', '$pass', '$fNac','$usuario','$img','$genero', NULL,NULL)";
-                    if (!mysqli_query($conexion, $sql)) {
-                        throw new Exception(mysqli_error($conexion));
-                    }
+if (empty($correo) || empty($usuario) || empty($pass) || empty($genero) || empty($fNac)) {
+    die('<script>alert("Todos los campos son requeridos"); window.location.href="index.php";</script>');
+}
 
-                    // Segunda operación: Inserción en la tabla 'resena'
-                    $sqlRes = "INSERT INTO resena (puntaje, descRes, encabezado, emailU) VALUES(NULL, NULL, NULL, '$correo')";
-                    if (!mysqli_query($conexion, $sqlRes)) {
-                        throw new Exception(mysqli_error($conexion));
-                    }
+// Validate password: min 8 chars, 1 uppercase, 1 number
+if (!preg_match('/^(?=.*[A-Z])(?=.*\d).{8,}$/', $pass)) {
+    die('<script>alert("La contraseña no cumple con las condiciones (mínimo 8 caracteres, una mayúscula y un número)"); window.location.href="index.php";</script>');
+}
 
-                    // Tercera operación: Consulta de idNivel desde la tabla 'niveles'
-                    $sqlNiv = "SELECT idNivel FROM niveles";
-                    $resultadoNiv = mysqli_query($conexion, $sqlNiv);
-                    if (!$resultadoNiv) {
-                        throw new Exception(mysqli_error($conexion));
-                    }
+$img = 'images/Perfil/sam.png';
 
-                    // Cuarta operación: Inserción en la tabla 'accede'
-                    if (mysqli_num_rows($resultadoNiv) > 0) {
-                        while ($filaNiv = mysqli_fetch_assoc($resultadoNiv)) {
-                            $idNivel = $filaNiv['idNivel'];
-                            $sqlAccede = "INSERT INTO accede (sumatoria, pMax, veces, emailU, idNivel) VALUES (0,0,0,'$correo',$idNivel)";
-                            if (!mysqli_query($conexion, $sqlAccede)) {
-                                throw new Exception(mysqli_error($conexion));
-                            }
-                        }
-                    } else {
-                        echo "No se encontraron niveles.";
-                    }
+// Check if email already exists (using prepared statement)
+$stmt = $conexion->prepare("SELECT emailU FROM usuario WHERE emailU = ? UNION SELECT emailA FROM administrador WHERE emailA = ? UNION SELECT emailM FROM maestros WHERE emailM = ?");
+if (!$stmt) {
+    error_log("Prepare failed: " . $conexion->error);
+    die('Error en la consulta. Intente más tarde.');
+}
+$stmt->bind_param("sss", $correo, $correo, $correo);
+$stmt->execute();
+$resultado = $stmt->get_result();
 
-                    // Termina la transacción
-                    mysqli_commit($conexion);
+if ($resultado->num_rows > 0) {
+    $stmt->close();
+    die('<script>alert("Ya existe una cuenta con tal correo"); window.location.href="index.php";</script>');
+}
+$stmt->close();
 
-                    // Redirige a lecciones.php después de completar todas las operaciones
-                    header("location:lecciones.php");
-                } catch (Exception $e) {
-                    // En caso de error, revierte la transacción
-                    mysqli_rollback($conexion);
+// Check if username already exists
+$stmt = $conexion->prepare("SELECT nUsuario FROM usuario WHERE nUsuario = ?");
+if (!$stmt) {
+    error_log("Prepare failed: " . $conexion->error);
+    die('Error en la consulta. Intente más tarde.');
+}
+$stmt->bind_param("s", $usuario);
+$stmt->execute();
+$resultado = $stmt->get_result();
 
-                    // Muestra un mensaje de error
-                    echo "Error: " . $e->getMessage();
-                }
+if ($resultado->num_rows > 0) {
+    $stmt->close();
+    die('<script>alert("Ya existe una cuenta con tal usuario"); window.location.href="index.php";</script>');
+}
+$stmt->close();
 
-            }else{
-                echo '<script language="javascript">window.location.href="index.php";alert("La contraseña no cumple con las condiciones (minimo 8 caracteres, una mayuscula y un numero)");
-                    </script>';
+// Start transaction for registration
+mysqli_begin_transaction($conexion);
+try {
+    // Insert usuario
+    $stmt = $conexion->prepare("INSERT INTO usuario (emailU, contraU, fNacU, nUsuario, imagenU, generoU) VALUES (?, ?, ?, ?, ?, ?)");
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conexion->error);
+    }
+    $stmt->bind_param("ssssss", $correo, $pass, $fNac, $usuario, $img, $genero);
+    if (!$stmt->execute()) {
+        throw new Exception("Error al insertar usuario: " . $stmt->error);
+    }
+    $stmt->close();
+
+    // Insert resena
+    $stmt = $conexion->prepare("INSERT INTO resena (puntaje, descRes, encabezado, emailU) VALUES (NULL, NULL, NULL, ?)");
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conexion->error);
+    }
+    $stmt->bind_param("s", $correo);
+    if (!$stmt->execute()) {
+        throw new Exception("Error al insertar reseña: " . $stmt->error);
+    }
+    $stmt->close();
+
+    // Get all levels and insert accede records
+    $stmt = $conexion->prepare("SELECT idNivel FROM niveles");
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conexion->error);
+    }
+    $stmt->execute();
+    $resultadoNiv = $stmt->get_result();
+
+    if ($resultadoNiv->num_rows > 0) {
+        $stmtAccede = $conexion->prepare("INSERT INTO accede (sumatoria, pMax, veces, emailU, idNivel) VALUES (0, 0, 0, ?, ?)");
+        if (!$stmtAccede) {
+            throw new Exception("Prepare failed: " . $conexion->error);
+        }
+        while ($filaNiv = $resultadoNiv->fetch_assoc()) {
+            $idNivel = $filaNiv['idNivel'];
+            $stmtAccede->bind_param("si", $correo, $idNivel);
+            if (!$stmtAccede->execute()) {
+                throw new Exception("Error al insertar acceso a nivel: " . $stmtAccede->error);
             }
         }
+        $stmtAccede->close();
     }
-    mysqli_free_result($resultado);
-    mysqli_close($conexion);
+    $stmt->close();
+
+    // Commit transaction
+    mysqli_commit($conexion);
+
+    // Destroy any existing session and create a fresh one
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
+    }
+    session_start();
+    session_regenerate_id(true);
+    $_SESSION['correo'] = $correo;
+    header("Location: lecciones.php");
+    exit();
+
+} catch (Exception $e) {
+    // Rollback on error
+    mysqli_rollback($conexion);
+    error_log("Registration error: " . $e->getMessage());
+    die('<script>alert("Error al registrarse: ' . htmlspecialchars($e->getMessage()) . '"); window.location.href="index.php";</script>');
+}
+
+mysqli_close($conexion);
 ?>

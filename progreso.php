@@ -63,8 +63,13 @@
 							<section id="one" style = "box-sizing: unset;">
 								<div class="inner">
                                     <?php
-                                        session_name("USUARIO");
                                         session_start();
+                                        
+                                        // Validate user is logged in
+                                        if (empty($_SESSION['correo'])) {
+                                            header("Location: index.php");
+                                            exit();
+                                        }
                                     ?>
                                     <style>
                                         #progress-bar {

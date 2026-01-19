@@ -57,17 +57,38 @@
                                     <div class="contenedor" style= "width: 100%;height:100%;">
                                         <div class="row" style="height: 100%;">
 											<?php
-												session_name("USUARIO");
 												session_start();
+												
+												// Validate user is logged in
+												if (empty($_SESSION['correo'])) {
+													header("Location: index.php");
+													exit();
+												}
+												
 												$correo = $_SESSION['correo'];
 												include('db.php');
-												$consulta = "SELECT * FROM usuario where emailU = '$correo'";
-                                        		$resultado = mysqli_query($conexion,$consulta);
-												$fila = mysqli_fetch_assoc($resultado);
+												
+												// Use prepared statement to avoid SQL injection
+												$stmt = $conexion->prepare("SELECT imagenU, nUsuario, fNacU, generoU FROM usuario WHERE emailU = ?");
+												if (!$stmt) {
+													error_log("Prepare failed: " . $conexion->error);
+													die('Error al cargar el perfil');
+												}
+												
+												$stmt->bind_param("s", $correo);
+												$stmt->execute();
+												$result = $stmt->get_result();
+												
+												if (!($fila = $result->fetch_assoc())) {
+													header("Location: index.php");
+													exit();
+												}
+												
 												$img = $fila['imagenU'];
 												$nU = $fila['nUsuario'];
 												$fnac = $fila['fNacU'];
 												$genero = $fila['generoU'];
+												$stmt->close();
 											?>
                                             <div class="col-md-3 border-right">
 												<?php
@@ -118,13 +139,18 @@
 															$enca = '';
 															$puntaje = '';
 															$desc = '';
-															$consultaRes = "SELECT * FROM resena WHERE emailU = '$correo' AND puntaje IS NOT NULL AND encabezado IS NOT NULL AND descRes IS NOT NULL";
-															$r = mysqli_query($conexion,$consultaRes);
-															if ($filaR = mysqli_fetch_assoc($r)) {
-																// Acceder a los campos de la filaR
-																$enca = $filaR['encabezado'];
-																$puntaje = $filaR['puntaje'];
-																$desc = $filaR['descRes'];
+															// Use prepared statement
+															$stmt = $conexion->prepare("SELECT encabezado, puntaje, descRes FROM resena WHERE emailU = ? AND puntaje IS NOT NULL AND encabezado IS NOT NULL AND descRes IS NOT NULL");
+															if ($stmt) {
+																$stmt->bind_param("s", $correo);
+																$stmt->execute();
+																$r = $stmt->get_result();
+																if ($filaR = $r->fetch_assoc()) {
+																	$enca = $filaR['encabezado'];
+																	$puntaje = $filaR['puntaje'];
+																	$desc = $filaR['descRes'];
+																}
+																$stmt->close();
 															}
 														?>
 														<div class = "field">
@@ -212,22 +238,20 @@
 																	</li>
 																</ul>
 																<?php
-																	$c = "SELECT nUsuario FROM usuario WHERE emailU != '$correo'";
-																	$r = mysqli_query($conexion,$c);
-																	if ($r) {
-																		// Inicializa un array para almacenar los nombres de usuario
+																	// Use prepared statement
+																	$stmt = $conexion->prepare("SELECT nUsuario FROM usuario WHERE emailU != ?");
+																	if ($stmt) {
+																		$stmt->bind_param("s", $correo);
+																		$stmt->execute();
+																		$r = $stmt->get_result();
+																		// Initialize array to store usernames
 																		$f = array();
-																	
-																		// Recorre los resultados y almacena los nombres de usuario en el array
-																		while ($fila = mysqli_fetch_assoc($r)) {
+																		while ($fila = $r->fetch_assoc()) {
 																			$f[] = $fila['nUsuario'];
 																		}
-																	
-																		// Convierte el array a formato JSON para pasarlo a JavaScript
-																	
-																		// Luego, puedes usar $jsonNombresUsuario en tu código JavaScript
+																		$stmt->close();
 																	} else {
-																		// Manejo de errores, si es necesario
+																		$f = array();
 																	}
 																?>
 																<script>

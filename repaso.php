@@ -61,15 +61,32 @@
 						<!-- One -->
 							<section id="one" class="tiles">
 								<?php
+									session_start();
+									
+									// Validate user is logged in
+									if (empty($_SESSION['correo'])) {
+										header("Location: index.php");
+										exit();
+									}
+									
 									include('db.php');
-									$sql = "SELECT nombreN, descripcionN,idNivel FROM niveles";
-									$result = $conexion->query($sql);
+									
+									// Use prepared statement
+									$stmt = $conexion->prepare("SELECT nombreN, descripcionN, idNivel FROM niveles");
+									if (!$stmt) {
+										error_log("Prepare failed: " . $conexion->error);
+										die('Error al cargar repaso');
+									}
+									
+									$stmt->execute();
+									$result = $stmt->get_result();
+									
                                     if ($result) {
                                         // Recorre los resultados
                                         while ($row = $result->fetch_assoc()) {
-                                            $nombre = $row['nombreN'];
-											$desc = $row['descripcionN'];
-											$id = $row['idNivel'];
+                                            $nombre = htmlspecialchars($row['nombreN'], ENT_QUOTES, 'UTF-8');
+											$desc = htmlspecialchars($row['descripcionN'], ENT_QUOTES, 'UTF-8');
+											$id = (int)$row['idNivel'];
                                             echo "<article>
 											<span class='image'>
 												<img src='images/pic01.jpg' alt='' />
@@ -84,6 +101,7 @@
                                         // Maneja el caso en que la consulta no sea exitosa
                                         echo "Error al obtener las tablas: " . $conexion->error;
                                     }
+									$stmt->close();
 								?>								
 							</section>
 
