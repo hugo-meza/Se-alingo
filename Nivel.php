@@ -53,8 +53,6 @@
 									
 									// Validate user is logged in and has level selected
 									if (empty($_SESSION['correo']) || empty($_SESSION['idNivel'])) {
-										echo "$_SESSION[correo]";
-										echo "$_SESSION[idNivel]";
 										die('Error: Acceso inválido');
 									} 
 									

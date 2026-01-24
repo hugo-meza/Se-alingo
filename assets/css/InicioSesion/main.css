@@ -3205,7 +3205,7 @@ button:disabled,
   }
 
   .spotlights > section > .content {
-    width: 55%;
+    width: 50%;
   }
 }
 
@@ -4146,6 +4146,7 @@ button.btn-niv {
   border-radius: 50px;
   background: #162938;
   font-family: FuturaHandwritten;
+  z-index: 10;
   box-shadow: none;
 }
 .content.level {
@@ -4444,3 +4445,35 @@ img.puntos-abeja {
 .inner-nivel{
   display: none;
 }
+
+#main {
+  position: relative !important;
+  width: 100% !important;
+}
+
+#lienzo-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5 !important;
+}
+
+#linea-rastro {
+  fill: none;
+  /* ¡IMPORTANTE! Sin relleno, solo borde */
+  stroke: #555;
+  stroke-width: 3;
+  stroke-dasharray: 10, 10;
+  stroke-linecap: round;
+  animation: moverRastro 1s linear infinite;
+}
+
+@keyframes moverRastro {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+

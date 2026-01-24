@@ -13,12 +13,10 @@
         		window.history.replaceState(null, null, window.location.href);
     		}
 		</script>
-
 	</head>
 	<body class="is-preload" style = "background-image: url(images/FondoLecciones.jpg);
     background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;">
+    ">
 
 		<!-- Wrapper -->
 			<div id="wrapper">
@@ -69,7 +67,10 @@
 
 				<!-- Main -->
 					<div id="main">
-							<section id="two" class="spotlights">
+						<svg id="lienzo-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+							<path id="linea-rastro" d="" />
+						</svg>
+						<section id="two" class="spotlights">
 							<?php
 								session_start();
 								
@@ -101,7 +102,7 @@
 											echo "<section>
 													<div class='content level'>
 														<div class='inner-level'>
-															<button class='btn-niv' onclick='aNivel($idNivel)'>$numero</button>
+															<button class='btn-niv' id='btn$numero' onclick='aNivel($idNivel)'>$numero</button>
 														</div>
 													</div>
 												</section>";
@@ -113,6 +114,8 @@
 									echo "Error en la consulta: " . $conexion->error;
 								}
 								?>
+
+								
 
 								<script type="text/javascript">
 									function aNivel(no) {
@@ -135,8 +138,80 @@
 										xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 										xmlhttp.send("idNivel=" + no);
 									}
-								</script>
 
+									function conectarBotones() {
+										const btn1 = document.getElementById('btn1');
+										const btn2 = document.getElementById('btn2');
+										const path = document.getElementById('linea-rastro');
+										const svg = document.getElementById('lienzo-svg');
+
+										if (!btn1 || !btn2 || !path || !svg) return;
+
+										// --- FUNCIÓN MÁGICA PARA CORREGIR EL DESFASE ---
+										// Convierte cualquier coordenada de la pantalla (clientX, clientY)
+										// al sistema de coordenadas exacto dentro de tu SVG.
+										function getSVGCoordinates(element) {
+											const rect = element.getBoundingClientRect();
+											const pt = svg.createSVGPoint();
+											
+											// Tomamos el centro del elemento
+											pt.x = rect.left + rect.width / 2;
+											pt.y = rect.top + rect.height / 2;
+
+											// Transformamos ese punto usando la matriz del SVG
+											// Esto corrige scroll, zoom, viewBox y posición absoluta automáticamente
+											return pt.matrixTransform(svg.getScreenCTM().inverse());
+										}
+
+										// 1. Obtener coordenadas exactas en el mundo SVG
+										const p1 = getSVGCoordinates(btn1);
+										const p2 = getSVGCoordinates(btn2);
+
+										// 2. Calcular la curva
+										// En lugar de una altura fija (-150), la hacemos proporcional a la distancia.
+										// Si están lejos, la curva es alta. Si están cerca, es baja.
+										const deltaX = p2.x - p1.x;
+										const deltaY = p2.y - p1.y;
+										const distancia = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+										
+										// Altura del arco: 30% de la distancia total (ajusta el 0.3 a tu gusto)
+										// El Math.min es para que no sea exageradamente alto si están muy lejos
+										const alturaArco = Math.min(distancia * 0.4, 300); 
+
+										// Punto medio
+										const midX = (p1.x + p2.x) / 2;
+										const midY = (p1.y + p2.y) / 2;
+
+										// El punto de control jala la línea hacia arriba (restando a Y)
+										// Nota: Si quieres que la curva siempre vaya "hacia arriba" visualmente, resta a Y.
+										// Si quieres que sea perpendicular a la línea, requiere más trigonometría.
+										const controlX = midX;
+										const controlY = midY - alturaArco;
+
+										// 3. Dibujar de Centro a Centro (La clave estética)
+										// Deja que el CSS (z-index) tape el inicio de la línea.
+										const d = `M ${p1.x} ${p1.y} Q ${controlX} ${controlY} ${p2.x} ${p2.y}`;
+
+										const dist = Math.abs(p2.x - p1.x) * 0.5; // La fuerza depende de la distancia
+										const cp1_s = { x: p1.x + dist, y: p1.y }; 
+										const cp2_s = { x: p2.x - dist, y: p2.y };
+										const d_s = `M ${p1.x} ${p1.y} C ${cp1_s.x} ${cp1_s.y} ${cp2_s.x} ${cp2_s.y} ${p2.x} ${p2.y}`;
+
+										const cp1_loop = { x: p1.x, y: p1.y + 300 }; // Baja mucho
+										const cp2_loop = { x: p2.x, y: p2.y - 100 }; // Sube por debajo del destino
+										const d_loop = `M ${p1.x} ${p1.y} C ${cp1_loop.x} ${cp1_loop.y} ${cp2_loop.x} ${cp2_loop.y} ${p2.x} ${p2.y}`;
+
+										path.setAttribute('d', d_loop);
+									}
+
+									// Esperar a que el DOM esté completamente cargado
+									document.addEventListener('DOMContentLoaded', function() {
+										conectarBotones();
+										window.addEventListener('resize', conectarBotones);
+									});
+
+								</script>
+						</section>
 					</div>
 					
 				<!-- Contact --><!--
