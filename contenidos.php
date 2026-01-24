@@ -100,24 +100,41 @@
 
 									<!-- Content -->
                                     <?php
-										session_name("USUARIO");
-                                        session_start();
+										session_start();
+										
+										// Validate user is logged in
+										if (empty($_SESSION['correo'])) {
+											die('Error: Usuario no autenticado');
+										}
+										
                                         $correo = $_SESSION['correo'];
                                         include('db.php');
-										$nombreNivel = isset($_GET['nivel']) ? $_GET['nivel'] : '';
+										
+										// Validate and sanitize GET parameters
+										$nombreNivel = isset($_GET['nombre']) ? htmlspecialchars($_GET['nombre'], ENT_QUOTES, 'UTF-8') : '';
+										$idNivel = isset($_GET['nivel']) ? (int)$_GET['nivel'] : 0;
 
 										// Verificar si se proporcionó el parámetro "nivel"
-										if (!empty($nombreNivel)) {
-											$consulta = "SELECT * FROM niveles WHERE idNivel = $nombreNivel";
-											$resultado = mysqli_query($conexion,$consulta);
-											$fila = mysqli_fetch_assoc($resultado);
-											$nombre = $fila['nombreN'];
-											$video = $fila['video'];
-											$doc = $fila['documento'];
-											echo "<div id='video' class='content' style = 'display: block;'>
-											<div class = 'box'>
-												<div class = 'videos-con'>
-													<div class = 'container-videos'>
+										if (!empty($idNivel)) {
+											// Use prepared statement
+											$stmt = $conexion->prepare("SELECT nombreN, video, documento FROM niveles WHERE idNivel = ?");
+											if (!$stmt) {
+												error_log("Prepare failed: " . $conexion->error);
+												die('Error en la consulta');
+											}
+											
+											$stmt->bind_param("i", $idNivel);
+											$stmt->execute();
+											$result = $stmt->get_result();
+											
+											if ($fila = $result->fetch_assoc()) {
+												$nombre = htmlspecialchars($fila['nombreN'], ENT_QUOTES, 'UTF-8');
+												$video = htmlspecialchars($fila['video'], ENT_QUOTES, 'UTF-8');
+												$doc = htmlspecialchars($fila['documento'], ENT_QUOTES, 'UTF-8');
+												echo "<div id='video' class='content' style = 'display: block;'>
+												<div class = 'box'>
+													<div class = 'videos-con'>
+														<div class = 'container-videos'>
 														<div class = 'vid'>
 															<video src='$video' controls></video>
 														</div>

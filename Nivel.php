@@ -49,18 +49,40 @@
 								
 								<div class="inner">
 								<?php
-									session_name("USUARIO");
 									session_start();
-									$correo = $_SESSION['correo'];
-									$nivel = $_SESSION['idNivel'];
-									include('db.php');
-									$consulta = "SELECT nombreN, video FROM niveles WHERE idNivel = $nivel";
-									$resultado = mysqli_query($conexion,$consulta);
-									$fila = mysqli_fetch_assoc($resultado);
-									$nombre = $fila['nombreN'];
-									$video = $fila['video'];
-									echo "<header class='major' style = 'width: 100%; align-items: center;'> <h1>$nombre</h1>  <a class = 'btn-vid' href=Actividad.php>Siguiente</a> </header> <span class='image main'> <video src='$video' controls></video></span>";
 									
+									// Validate user is logged in and has level selected
+									if (empty($_SESSION['correo']) || empty($_SESSION['idNivel'])) {
+										echo "$_SESSION[correo]";
+										echo "$_SESSION[idNivel]";
+										die('Error: Acceso inválido');
+									} 
+									
+									$correo = $_SESSION['correo'];
+									$nivel = (int)$_SESSION['idNivel'];
+									include('db.php');
+									
+									// Use prepared statement
+									$stmt = $conexion->prepare("SELECT nombreN, video FROM niveles WHERE idNivel = ?");
+									if (!$stmt) {
+										error_log("Prepare failed: " . $conexion->error);
+										die('Error en la consulta');
+									}
+									
+									$stmt->bind_param("i", $nivel);
+									$stmt->execute();
+									$result = $stmt->get_result();
+									
+									if ($fila = $result->fetch_assoc()) {
+										$nombre = htmlspecialchars($fila['nombreN'], ENT_QUOTES, 'UTF-8');
+										$video = htmlspecialchars($fila['video'], ENT_QUOTES, 'UTF-8');
+										echo "<header class='major' style = 'width: 100%; align-items: center;'> <h1>$nombre</h1>  <a class = 'btn-vid' href='Actividad.php'>Siguiente</a> </header> <span class='image main'> <video src='$video' controls></video></span>";
+									} else {
+										echo "Error: Nivel no encontrado";
+									}
+									
+									$stmt->close();
+									mysqli_close($conexion);
 								?>
 								</div>
 							</section>

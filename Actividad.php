@@ -70,32 +70,60 @@
 						</div>
 						<span class="image-act">
 							<?php
-								session_name("USUARIO");
 								session_start();
+								
+								// Validate user is logged in and has level selected
+								if (empty($_SESSION['correo']) || empty($_SESSION['idNivel'])) {
+									die('Error: Acceso inválido');
+								}
+								
 								$correo = $_SESSION['correo'];
-								$nivel = $_SESSION['idNivel'];
+								$nivel = (int)$_SESSION['idNivel'];
 								$_SESSION['puntos'] = 5;
 								include('db.php');
-								$consulta = "SELECT * FROM niveles WHERE idNivel = $nivel";
-								$resultado = mysqli_query($conexion,$consulta);
-								$fila = mysqli_fetch_assoc($resultado);
-								$tipoAct = [$fila['memorama'], $fila['describir'],$fila['selectOp'],$fila['selectGif']];
-								//echo count($tipoAct);
-								$sqlGif = "SELECT * FROM gif WHERE idNivel = $nivel";
-								$res = mysqli_query($conexion,$sqlGif);
+								
+								// Use prepared statement to get level data
+								$stmt = $conexion->prepare("SELECT memorama, describir, selectOp, selectGif FROM niveles WHERE idNivel = ?");
+								if (!$stmt) {
+									error_log("Prepare failed: " . $conexion->error);
+									die('Error en la consulta');
+								}
+								
+								$stmt->bind_param("i", $nivel);
+								$stmt->execute();
+								$result = $stmt->get_result();
+								
+								if (!($fila = $result->fetch_assoc())) {
+									die('Error: Nivel no encontrado');
+								}
+								
+								$tipoAct = [$fila['memorama'], $fila['describir'], $fila['selectOp'], $fila['selectGif']];
+								$stmt->close();
+								
+								// Get GIF data using prepared statement
+								$stmt = $conexion->prepare("SELECT idGif, significado, rutaGif FROM gif WHERE idNivel = ?");
+								if (!$stmt) {
+									error_log("Prepare failed: " . $conexion->error);
+									die('Error en la consulta');
+								}
+								
+								$stmt->bind_param("i", $nivel);
+								$stmt->execute();
+								$res = $stmt->get_result();
+								
 								$disp = array();
-								//$usado = array();
 								$i = 0;
-								while ($row = mysqli_fetch_assoc($res)) {
-									//echo "Significado: " . $row['idGif'] . "<br>";
+								while ($row = $res->fetch_assoc()) {
 									$disp[$i][0] = $row['idGif'];
 									$disp[$i][1] = $row['significado'];
 									$disp[$i][2] = $row['rutaGif'];
 									$i++; 
 								}
+								
 								$_SESSION['disponible'] = $disp;
 								$_SESSION['todos'] = $disp;
-								//$_SESSION['usado'] = $usado;								
+								$stmt->close();
+								mysqli_close($conexion);
 							?>
 							<iframe src = ''  id = 'iframeActividades'class = 'actividades' ></iframe>	
 							<script>
