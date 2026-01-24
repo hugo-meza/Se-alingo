@@ -147,7 +147,6 @@
 
 										if (!btn1 || !btn2 || !path || !svg) return;
 
-										// --- FUNCIÓN MÁGICA PARA CORREGIR EL DESFASE ---
 										// Convierte cualquier coordenada de la pantalla (clientX, clientY)
 										// al sistema de coordenadas exacto dentro de tu SVG.
 										function getSVGCoordinates(element) {

@@ -4468,7 +4468,7 @@ img.puntos-abeja {
   stroke-width: 3;
   stroke-dasharray: 10, 10;
   stroke-linecap: round;
-  animation: moverRastro 1s linear infinite;
+  /* animation: moverRastro 1s linear infinite;*/
 }
 
 @keyframes moverRastro {
