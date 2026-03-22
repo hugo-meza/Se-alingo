@@ -1,4 +1,8 @@
 # Se-alingo
+## Resumen
+
+Señalingo es un proyecto de preparatoria; se trata de un sitio web dedicado a la enseñanza de Lengua de Señas Mexicana, mediante recursos visuales y actividades interactivas. 
+
 
 Para subir videos u otros archivos grandes usar en git bash:
 ```bash
